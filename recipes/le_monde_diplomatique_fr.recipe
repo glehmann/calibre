@@ -60,7 +60,7 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
     def parse_index_valise(self):
         articles = []
         soup = self.index_to_soup('http://www.monde-diplomatique.fr/carnet/')
-        cnt = soup.find('ul',attrs={'class':'hermetique liste'})
+        cnt = soup.find('ul',attrs={'class':'liste double'})
         for item in cnt.findAll('li'):
             description = ''
             feed_link = item.find('a')
@@ -70,10 +70,11 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
                 description = desc.string
             if feed_link and feed_link.has_key('href'):
                 url   = 'http://www.monde-diplomatique.fr' + feed_link['href']
-                title = self.tag_to_string(feed_link)
+                title = self.tag_to_string(feed_link).strip()
+                date = self.tag_to_string(date).strip()
                 articles.append({
                                   'title'      :title
-                                 ,'date'       :date.string.strip()
+                                 ,'date'       :date
                                  ,'url'        :url
                                  ,'description':description
                                 })
@@ -82,12 +83,12 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
     def parse_index_cartes(self):
         articles = []
         soup = self.index_to_soup('http://www.monde-diplomatique.fr/cartes/')
-        cnt = soup.find('div',attrs={'class':'decale hermetique'})
+        cnt = soup.find('div',attrs={'class':'premisses'})
         for item in cnt.findAll('div',attrs={'class':re.compile('grid_3 filet hombre_demi')}):
             feed_link = item.find('a',attrs={'class':'couve'})
             h3 = item.find('h3')
             authorAndDate = item.find('div',attrs={'class':'dates_auteurs'})
-            author_date = authorAndDate.string.strip().split(', ')
+            author_date = self.tag_to_string(authorAndDate).strip().split(', ')
             author = author_date[0]
             date = author_date[-1]
             if feed_link and feed_link.has_key('href'):
